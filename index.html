@@ -1,0 +1,317 @@
+<html>
+
+<head>
+    <title>Smart Donation</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+    <script src="index.js"></script>
+    <style>
+        /* Estilo do modal */
+        .modal-container {
+            position: fixed;
+            bottom: -50%;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            /* Ajuste da altura para 50% da viewport */
+            z-index: 9999;
+            transition: bottom 0.5s ease;
+            display: none;
+            /* Inicialmente oculto */
+        }
+
+        .botao {
+            z-index: 9999;
+            position: absolute;
+            float: right;
+        }
+
+        .modal-content {
+            width: 100%;
+            height: 100%;
+            /* Ajuste da altura para 50% da viewport */
+            background-color: white;
+            overflow-y: auto;
+            padding: 20px;
+            box-sizing: border-box;
+            border-radius: 25px 25px 0 0;
+        }
+
+        /* Estilo do componente em background */
+        .background-component {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.3);
+            /* Cor de fundo semi-transparente */
+            z-index: 9998;
+            /* Um nível abaixo do modal */
+        }
+
+        @media(min-width: 500px) {
+            .modal-title {
+                font-size: 30px;
+                color: #000;
+            }
+        }
+
+        .modal-title {
+            font-size: 50px;
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="p-3 bg-dark text-white">
+        <div class="container">
+          <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+
+            <span class="fs-4">Smart Donation</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+              <li><a href="#" class="nav-link px-2 text-secondary">Início</a></li>
+              <li><a href="#" class="nav-link px-2 text-white">Abrigos</a></li>
+              <li><a href="#" class="nav-link px-2 text-white">Pontos de coleta</a></li>
+              <li><a href="#" class="nav-link px-2 text-white">Como doar</a></li>
+              <li><a href="#" class="nav-link px-2 text-white">Sobre</a></li>
+            </ul>
+    
+          </div>
+        </div>
+      </header>
+      <div class="row">
+        <div class="col-3">
+        </div>
+        <div class="col-6" style="text-align: center; margin: 20px;">
+            <h1 style=" color: brown;">Saiba o que e onde doar</h1>
+            <p>Encontre rapidamente abrigos ou pontos de coleta para enviar suas doações</p>
+        </div>
+        <div class="col-3">
+        </div>
+      </div>
+    <div id="map" class="map"></div>
+
+    <div class="row" style="margin-bottom: 20px;">
+        <div class="col-2">
+
+    <div id="customModal" class="modal-container">
+        <div class="modal-content">
+            <div class="row" style="margin-bottom: 20px;">
+                <div class="col-2">
+                </div>
+                <div class="col-8" style="text-align: center;">
+                    <h2 class="modal-title" id="title-modal"></h2>
+                </div>
+                <div class="col-2" style="text-align: right;">
+                    <button type="button" onclick="closeModal()" class="btn btn-lg btn-outline-danger">
+                        <i class="fa fa-close"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-6">
+
+                    <label><b>Responsável: </b><span id="responsavel"></span></label><br><br>
+                    <label><b>Telefone: </b><span id="telefone"></span></label><br><br>
+                    <label><b>Número de abrigados: </b><span id="numeroAbrigados"></span></label><br><br>
+                    <label><b>Endereço: </b><span id="endereco"></span></label>
+                </div>
+                <div class="col-6">
+                    <div class="row">
+                        <div class="col">
+                            <div class="row" style="margin-bottom: 15px;">
+                                <div class="col-3">
+                                    <i class="fa fa-circle fa-sm" style="color: red;"></i>Critico
+                                </div>
+                                <div class="col-3">
+                                    <i class="fa fa-circle fa-sm" style="color: orange;"></i>Urgente
+                                </div>
+                                <div class="col-3">
+                                    <i class="fa fa-circle fa-sm" style="color: yellow;"></i>Alto consumo
+                                </div>
+                                <div class="col-3" >
+                                    <i class="fa fa-circle fa-sm" style="color: blue;"></i>Médio consumo
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="row item-abrigo">
+                                <div class="col-2" style="text-align: left; padding-top: 7px;">
+                                    <img src="./icons/clean.png" style="width: 35; height: 35px;">
+                                </div>
+                                <div class="col-8" style="text-align: center; padding-top: 5px; color: brown">
+                                    Água potavel
+                                </div>
+                                <div class="col-2" style="text-align: right;" id="agua">
+                                    <i class="fa fa-circle fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+        
+                    <div class="row">
+                        <div class="col">
+                            <div class="row item-abrigo">
+                                <div class="col-2" style="text-align: left; padding-top: 7px;">
+                                    <img src="./icons/alimentos.png" style="width: 35; height: 35px;">
+                                </div>
+                                <div class="col-8" style="text-align: center; padding-top: 5px; color: brown">
+                                    Alimentos
+                                </div>
+                                <div class="col-2" style="text-align: right;" id="alimentos">
+                                    <i class="fa fa-circle fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+        
+                    <div class="row">
+                        <div class="col">
+                            <div class="row item-abrigo">
+                                <div class="col-2" style="text-align: left; padding-top: 7px;">
+                                    <img src="./icons/alimentos-infantis.png" style="width: 35; height: 35px;">
+                                </div>
+                                <div class="col-8" style="text-align: center; padding-top: 5px; color: brown">
+                                    Alimentos infantis
+                                </div>
+                                <div class="col-2" style="text-align: right;" id="alimentos_infantis">
+                                    <i class="fa fa-circle fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+        
+                    <div class="row">
+                        <div class="col">
+                            <div class="row item-abrigo">
+                                <div class="col-2" style="text-align: left; padding-top: 7px;">
+                                    <img src="./icons/roupas.png" style="width: 35; height: 35px;">
+                                </div>
+                                <div class="col-8" style="text-align: center; padding-top: 5px; color: brown">
+                                    Roupas
+                                </div>
+                                <div class="col-2" style="text-align: right;" id="roupas">
+                                    <i class="fa fa-circle fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+        
+                    <div class="row">
+                        <div class="col">
+                            <div class="row item-abrigo">
+                                <div class="col-2" style="text-align: left; padding-top: 7px;">
+                                    <img src="./icons/agasalhos.png" style="width: 35; height: 35px;">
+                                </div>
+                                <div class="col-8" style="text-align: center; padding-top: 5px; color: brown">
+                                    Agasalhos, lençóis, colchões
+                                </div>
+                                <div class="col-2" style="text-align: right;" id="agasalhos">
+                                    <i class="fa fa-circle fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+        
+                    <div class="row">
+                        <div class="col">
+                            <div class="row item-abrigo">
+                                <div class="col-2" style="text-align: left; padding-top: 7px;">
+                                    <img src="./icons/higiene.png" style="width: 35; height: 35px;">
+                                </div>
+                                <div class="col-8" style="text-align: center; padding-top: 5px; color: brown">
+                                    Higiene
+                                </div>
+                                <div class="col-2" style="text-align: right;" id="higiene">
+                                    <i class="fa fa-circle fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col">
+                            <div class="row item-abrigo">
+                                <div class="col-2" style="text-align: left; padding-top: 7px;">
+                                    <img src="./icons/higiene-feminino.png" style="width: 35; height: 35px;">
+                                </div>
+                                <div class="col-8" style="text-align: center; padding-top: 5px; color: brown">
+                                    Higiene feminina
+                                </div>
+                                <div class="col-2" style="text-align: right;" id="higiene_feminina">
+                                    <i class="fa fa-circle fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    <script
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg&callback=initMap&v=weekly"
+        defer></script>
+    <script>
+        var modal = false;
+        // Função para abrir o modal
+        function openModal(dados) {
+            closeModal();
+            document.getElementById("customModal").style.display = "flex"; // Exibir o modal
+            document.getElementById("customModal").style.bottom = "0%"; // Mover para a metade da página
+            document.getElementById("title-modal").innerHTML = dados.abrigo;
+            document.getElementById("responsavel").innerHTML = dados.responsavel;
+            document.getElementById("telefone").innerHTML = dados.telefone;
+            document.getElementById("numeroAbrigados").innerHTML = dados.numeroAbrigados;
+            document.getElementById("endereco").innerHTML = dados.endereco;
+            
+            document.getElementById("agua").style = getColor(dados.agua);
+            document.getElementById("alimentos").style = getColor(dados.alimentos);
+            document.getElementById("alimentos_infantis").style = getColor(dados.alimentos_infantis);
+            document.getElementById("roupas").style = getColor(dados.roupas);
+            document.getElementById("agasalhos").style = getColor(dados.agasalhos);
+            document.getElementById("higiene").style = getColor(dados.higiene);
+            document.getElementById("higiene_feminina").style = getColor(dados.higiene_feminina);
+
+
+        }
+
+        function getColor(num) {
+            console.log(num)
+            if (num === 1) {
+                return "color:red;text-align:right;"
+            }
+            if (num === 2) {
+                return "color:orange;text-align:right;"
+            }
+            if (num === 3) {
+                return "color:yellow;text-align:right;"
+            }
+            if (num === 4) {
+                return "color:blue;text-align:right;"
+            }
+        }
+
+        // Função para fechar o modal quando clicar fora dele
+        function closeModal() {
+            document.getElementById("customModal").style.display = "none"; // Ocultar o modal
+            document.getElementById("customModal").style.bottom = "-50%"; // Mover de volta para fora da tela
+        }
+    </script>
+</body>
+
+</html>
